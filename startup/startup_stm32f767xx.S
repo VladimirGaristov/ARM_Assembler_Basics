@@ -110,17 +110,7 @@ LoopFillZerobss:
 
 //	USER CODE START
 
-	MOV R0, #1
-	MOV R1, #0
-
-//Calculate the sum of natural numbers up to and including 5
-Loop_Sum_N:
-	ADDS R1, R1, R0
-	ADD R0, R0, #1
-	CMP R0, #5
-	BLE Loop_Sum_N
-
-	B Infinite_Loop
+  bl Test_Progs
 
 //	USER CODE END
 
