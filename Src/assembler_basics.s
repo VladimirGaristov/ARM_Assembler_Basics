@@ -8,6 +8,8 @@
 .section .text.test_progs
 Test_Progs:
 
+
+
 //Calculate the sum of natural numbers up to and including 5
 	MOV R0, #1
 	MOV R1, #0
