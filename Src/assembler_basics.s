@@ -75,46 +75,42 @@ LED_Init:
 
 	//Increment R1 to point to GPIOB_BSRR
 	ADD R1, R1, #4
-	//Leave LED on for 5 seconds
+	//Leave LED on for 2 seconds
 	PUSH {R1}
-	MOV R0, #5000
+	MOV R0, #2000
 	BL Delay
 
 //Output "гдп аеове!" on the LCD screen
 Hello_World:
 	//Wait for initialisation
-	MOV R0, #100
+	MOV R0, #50
 	BL Delay
 	//BL LCD_wait
-
-	//Initialisation by instructions
-	MOV R1, #0
-	MOV R0, #48
-	BL LCD_Write
-	MOV R0, #10
-	BL Delay
-	MOV R1, #0
-	MOV R0, #48
-	BL LCD_Write
-	MOV R0, #10
-	BL Delay
-	MOV R1, #0
-	MOV R0, #48
-	BL LCD_Write
 
 	//Set DataLine to 8 bits, Number of rows to 2 and Font to 5x8 px
 	MOV R1, #0
 	MOV R0, #56
 	BL LCD_Write
-	BL LCD_wait
-
-	//Initialization by instructions
+	MOV R0, #5
+	BL Delay
 	MOV R1, #0
-	MOV R0, #6
+	MOV R0, #56
 	BL LCD_Write
-	BL LCD_wait
+	MOV R0, #1
+	BL Delay
+	MOV R1, #0
+	MOV R0, #56
+	BL LCD_Write
+
+	//Clear display
 	MOV R1, #0
 	MOV R0, #1
+	BL LCD_Write
+	BL LCD_wait
+
+	//Set entry mode: increment, no shift
+	MOV R1, #0
+	MOV R0, #6
 	BL LCD_Write
 	BL LCD_wait
 
@@ -124,17 +120,114 @@ Hello_World:
 	BL LCD_Write
 	BL LCD_wait
 
-	//Set cursor position to 0;0
+	//Set cursor position to 0;0 and set shift to 0
+	MOV R1, #0
+	MOV R0, #2
+	BL LCD_Write
+
+	MOV R0, #1
+	BL Delay
+	//BL LCD_wait		//Reading the Busy Flag increments the cursor position WTF?!?
+
+	//Output something
+	MOV R1, #1
+	MOV R0, #0x5A
+	BL LCD_Write
+	BL LCD_wait
+
 	MOV R1, #0
 	MOV R0, #128
 	BL LCD_Write
 	BL LCD_wait
 
-	//Output something
 	MOV R1, #1
-	MOV R0, #141
+	MOV R0, #0x44
 	BL LCD_Write
 	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #129
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x72
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #130
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x20
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #131
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x62
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #132
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x45
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #133
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x70
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #134
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x34
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #135
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x65
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #136
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #1
+	MOV R0, #0x21
+	BL LCD_Write
+	BL LCD_wait
+
+	MOV R1, #0
+	MOV R0, #168
+	BL LCD_Write
 
 //Blink LED on PB7 at 1Hz
 Blink:
@@ -202,12 +295,6 @@ LCD_Write:
 	//Set R2 to the address of GPIOE_BSRR
 	ADD R2, R2, #0x4
 
-	//Desperate fix
-	PUSH {R2, R3}
-	MOV R0, #5
-	BL Delay
-	POP {R2, R3}
-
 	//Sets Enable bit
 	MOV R3, #4
 	STR R3, [R2]
@@ -215,7 +302,7 @@ LCD_Write:
 	//The execution time of 1 instruction @16MHz is enough to comply with the set-up time
 
 	PUSH {R2, R3}
-	MOV R0, #10
+	MOV R0, #1
 	BL Delay				//1ms is an overkill but I'm too lazy to implement a separate us delay
 	POP {R2, R3}
 
@@ -223,7 +310,7 @@ LCD_Write:
 	LSL R3, R3, #16
 	STR R3, [R2]
 
-	MOV R0, #10
+	MOV R0, #1
 	BL Delay
 
 	MOV R0, #0
