@@ -18,7 +18,7 @@ GPIOE_MODER = 0x40021000;
 SYST_CSR = 0xE000E010;
 
 .word LCD_WRITE_MODES
-LCD_WRITE_MODES = 0x55554010
+LCD_WRITE_MODES = 0x55554011
 
 .section .text.test_progs
 Test_Progs:
@@ -35,7 +35,7 @@ System_Timer_Init:
 	MOV R2, #0x3E80
 	STR R2, [R1]
 
-//Delay for 10 seconds
+//Delay for 3 seconds
 MOV R0, #3000
 BL Delay
 
@@ -83,11 +83,38 @@ LED_Init:
 //Output "гдп аеове!" on the LCD screen
 Hello_World:
 	//Wait for initialisation
-	BL LCD_wait
+	MOV R0, #100
+	BL Delay
+	//BL LCD_wait
+
+	//Initialisation by instructions
+	MOV R1, #0
+	MOV R0, #48
+	BL LCD_Write
+	MOV R0, #10
+	BL Delay
+	MOV R1, #0
+	MOV R0, #48
+	BL LCD_Write
+	MOV R0, #10
+	BL Delay
+	MOV R1, #0
+	MOV R0, #48
+	BL LCD_Write
 
 	//Set DataLine to 8 bits, Number of rows to 2 and Font to 5x8 px
 	MOV R1, #0
 	MOV R0, #56
+	BL LCD_Write
+	BL LCD_wait
+
+	//Initialization by instructions
+	MOV R1, #0
+	MOV R0, #6
+	BL LCD_Write
+	BL LCD_wait
+	MOV R1, #0
+	MOV R0, #1
 	BL LCD_Write
 	BL LCD_wait
 
@@ -175,6 +202,12 @@ LCD_Write:
 	//Set R2 to the address of GPIOE_BSRR
 	ADD R2, R2, #0x4
 
+	//Desperate fix
+	PUSH {R2, R3}
+	MOV R0, #5
+	BL Delay
+	POP {R2, R3}
+
 	//Sets Enable bit
 	MOV R3, #4
 	STR R3, [R2]
@@ -182,7 +215,7 @@ LCD_Write:
 	//The execution time of 1 instruction @16MHz is enough to comply with the set-up time
 
 	PUSH {R2, R3}
-	MOV R0, #1
+	MOV R0, #10
 	BL Delay				//1ms is an overkill but I'm too lazy to implement a separate us delay
 	POP {R2, R3}
 
@@ -190,8 +223,9 @@ LCD_Write:
 	LSL R3, R3, #16
 	STR R3, [R2]
 
-	MOV R0, #1
+	MOV R0, #10
 	BL Delay
+
 	MOV R0, #0
 	POP {PC}
 
