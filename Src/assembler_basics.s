@@ -5,6 +5,7 @@
 
 .global Test_Progs
 
+.section .data
 .word RCC_AHB1ENR
 RCC_AHB1ENR = 0x40023830;
 
@@ -18,10 +19,16 @@ GPIOE_MODER = 0x40021000;
 SYST_CSR = 0xE000E010;
 
 .word LCD_WRITE_MODES
-LCD_WRITE_MODES = 0x55554011
+LCD_WRITE_MODES = 0x55554011;
 
 .section .text.test_progs
 Test_Progs:
+	//MOV R0, #0x000A
+	//BL Fib
+
+	BL Arr_sort
+
+	B Default_Handler
 
 //Enable the system timer and set its period to 1ms
 System_Timer_Init:
@@ -370,7 +377,61 @@ Sum_N:
 		ADD R0, R0, #1
 		CMP R0, #5
 	BLE Loop_Sum_N
-
 B Default_Handler
 
+//Calculates the n-th fibonachi number (R0=n)
+Fib:
+	CMP R0, #3
+	ITT LT
+		MOVLT R0, #1
+		BXLT LR
+	PUSH {R0, LR}
+	SUB R0, R0, #1
+	BL Fib
+	POP {R1}
+	PUSH {R0}
+	SUB R0, R1, #2
+	BL Fib
+	POP {R1}
+	ADD R0, R0, R1
+	POP {PC}
+
+//Sorts the array
+Arr_sort:
+	LDR R0, =Arr
+	MOV R1, #15				//Array lenght
+	MOV R2, #0				//Counter
+
+	Sort_Loop:
+		MOV R3, #1			//Sorted flag
+
+		Bubble_Loop:
+			CMP R2, R1
+			BGE Check_Flag
+
+			LDRB R4, [R0, R2]
+			ADD R2, R2, #1
+			LDRB R5, [R0, R2]
+			CMP R5, R4
+			BGE Bubble_Loop
+
+			STRB R4, [R0, R2]
+			SUB R2, R2, #1
+			STRB R5, [R0, R2]
+			ADD R2, R2, #1
+			MOV R3, #0
+			B Bubble_Loop
+
+		Check_Flag:
+			CMP R3, #1
+			IT EQ
+				BXEQ LR
+			SUB R1, R1, #1
+			MOV R2, #0
+			B Sort_Loop
+
 .size Test_Progs, .-Test_Progs
+
+.section .data
+Arr:
+.byte 0xAA, 0xF1, 0x08, 0xCD, 0x78, 0x12, 0x34, 0xAD, 0x45, 0x92, 0x32, 0x57, 0xE6, 0x4E, 0x1C
